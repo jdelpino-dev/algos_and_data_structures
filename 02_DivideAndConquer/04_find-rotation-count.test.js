@@ -5,8 +5,6 @@
   Solution by José Delpino
 */
 
-// const findRotationCount = require("./04_find-rotation-count");
-
 describe("#findRotationCount", function () {
   it("returns the number of rotations", function () {
     expect(findRotationCount([15, 18, 2, 3, 6, 12])).toBe(2);

@@ -5,8 +5,6 @@
   Solution by José Delpino
 */
 
-// const findRotatedIndex = require("./03_find-rotated-index");
-
 describe("#findRotatedIndex", function () {
   it("returns the correct index", function () {
     expect(findRotatedIndex([3, 4, 1, 2], 4)).toBe(1);

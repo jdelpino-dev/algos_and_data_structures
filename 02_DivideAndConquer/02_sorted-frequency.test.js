@@ -5,8 +5,6 @@
   Solution by José Delpino
 */
 
-// const sortedFrequency = require("./02_sorted-frequency");
-
 describe("#sortedFrequency", function () {
   it("returns the frequency", function () {
     expect(sortedFrequency([1, 1, 2, 2, 2, 2, 3], 2)).toBe(4);
