@@ -5,7 +5,7 @@
   Solution by José Delpino
 */
 
-const sortedFrequency = require("./02_sorted-frequency");
+// const sortedFrequency = require("./02_sorted-frequency");
 
 describe("#sortedFrequency", function () {
   it("returns the frequency", function () {

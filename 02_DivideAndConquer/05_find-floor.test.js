@@ -5,7 +5,7 @@
   Solution by José Delpino
 */
 
-const findFloor = require("./05_find-floor");
+// const findFloor = require("./05_find-floor");
 
 describe("#findFloor", function () {
   it("returns the floor or -1", function () {

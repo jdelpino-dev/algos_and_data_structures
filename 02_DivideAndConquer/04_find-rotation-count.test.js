@@ -5,7 +5,7 @@
   Solution by José Delpino
 */
 
-const findRotationCount = require("./04_find-rotation-count");
+// const findRotationCount = require("./04_find-rotation-count");
 
 describe("#findRotationCount", function () {
   it("returns the number of rotations", function () {

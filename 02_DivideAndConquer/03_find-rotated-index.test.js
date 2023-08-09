@@ -5,7 +5,7 @@
   Solution by José Delpino
 */
 
-const findRotatedIndex = require("./03_find-rotated-index");
+// const findRotatedIndex = require("./03_find-rotated-index");
 
 describe("#findRotatedIndex", function () {
   it("returns the correct index", function () {
