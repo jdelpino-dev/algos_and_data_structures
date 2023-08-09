@@ -1,3 +1,10 @@
+/*
+  Divide & Conquer Exercise
+  Unit 19 of Springboard SWE Bootcamp
+   
+  Solution by José Delpino
+*/
+
 const sortedFrequency = require("./02_sorted-frequency");
 
 describe("#sortedFrequency", function () {

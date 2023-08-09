@@ -1,3 +1,10 @@
+/*
+  Divide & Conquer Exercise
+  Unit 19 of Springboard SWE Bootcamp
+   
+  Solution by José Delpino
+*/
+
 const findRotatedIndex = require("./03_find-rotated-index");
 
 describe("#findRotatedIndex", function () {

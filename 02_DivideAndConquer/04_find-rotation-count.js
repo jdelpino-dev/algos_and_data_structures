@@ -1,5 +1,10 @@
-function findRotationCount() {
-  
-}
+/*
+  Divide & Conquer Exercise
+  Unit 19 of Springboard SWE Bootcamp
+   
+  Solution by José Delpino
+*/
 
-module.exports = findRotationCount
+function findRotationCount() {}
+
+module.exports = findRotationCount;

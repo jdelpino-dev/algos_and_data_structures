@@ -14,6 +14,12 @@ function linearSearch(arr, target) {
   }
   return -1;
 }
+/*
+  Divide & Conquer Exercise
+  Unit 19 of Springboard SWE Bootcamp
+   
+  Solution by José Delpino
+*/
 
 /** Binary Search
  * @param {number[]} arr // sorted array

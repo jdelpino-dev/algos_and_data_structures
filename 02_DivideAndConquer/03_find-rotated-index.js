@@ -1,5 +1,10 @@
-function findRotatedIndex() {
- 
-}
+/*
+  Divide & Conquer Exercise
+  Unit 19 of Springboard SWE Bootcamp
+   
+  Solution by José Delpino
+*/
 
-module.exports = findRotatedIndex
+function findRotatedIndex() {}
+
+module.exports = findRotatedIndex;

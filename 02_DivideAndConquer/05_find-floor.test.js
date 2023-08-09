@@ -1,3 +1,10 @@
+/*
+  Divide & Conquer Exercise
+  Unit 19 of Springboard SWE Bootcamp
+   
+  Solution by José Delpino
+*/
+
 const findFloor = require("./05_find-floor");
 
 describe("#findFloor", function () {

@@ -1,3 +1,10 @@
+/*
+  Divide & Conquer Exercise
+  Unit 19 of Springboard SWE Bootcamp
+   
+  Solution by José Delpino
+*/
+
 const findRotationCount = require("./04_find-rotation-count");
 
 describe("#findRotationCount", function () {
