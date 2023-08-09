@@ -156,3 +156,20 @@ def merge_count_split_invs(nums_half1, nums_half2):
         k += 1  # Move to the next position in the sorted list.
 
     return sorted_nums, split_revinvs
+
+
+def array_from_file(filename):
+    """
+    Helper function to create an array of integers from a text file.
+
+    Parameters:
+    filename (str): the name of the file containing the array of integers
+
+    Returns:
+    nums (list): a list of integers
+    """
+
+    with open(filename) as file:
+        nums = [int(line) for line in file]
+
+    return nums
