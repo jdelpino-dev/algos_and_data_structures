@@ -1,0 +1,7 @@
+**/__pycache__/
+**/__interactive_sessions__/
+**/__additional_testing_sources__/
+**/.idea/
+launch.json
+.vscode/
+*.code-workspace
