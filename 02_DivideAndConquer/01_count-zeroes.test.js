@@ -5,8 +5,6 @@
   Solution by José Delpino
 */
 
-// const countZeroes = require("./01_count-zeroes");
-
 describe("#countZeroes", function () {
   it("counts the number of zeroes", function () {
     expect(countZeroes([1, 1, 1, 1, 0, 0])).toBe(2);
