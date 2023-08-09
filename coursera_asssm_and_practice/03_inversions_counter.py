@@ -1,3 +1,6 @@
+from random import randint
+
+
 def count_invs_and_sort(nums, start=0, end=None):
     """
     Function to count inversions and sort a list of numbers.
@@ -173,3 +176,75 @@ def array_from_file(filename):
         nums = [int(line) for line in file]
 
     return nums
+
+
+def count_inv_naive(nums):
+    """
+    Function that count inversions and sort a list of numbers using a naive
+    approach with complexity O(n^2).
+
+    DocTests:
+
+        >>> count_inv_naive([1, 2, 3])
+        0
+
+        >>> count_inv_naive([6, 1, 2, 7])
+        2
+
+        >>> count_inv_naive([5, 4, 3, 2, 1])
+        10
+
+        >>> count_inv_naive([])
+        0
+
+        >>> count_inv_naive(
+        ...     [28, 8, 44, 17, 9, 31, 60, 101, 82, 2]
+        ... )
+        17
+
+        >>> count_inv_naive(
+        ...     [258, 478, 342, 236, 70, 264, 316, 168, 91, 200]
+        ... )
+        31
+
+        >>> count_inv_naive([24, 46, 8, 4])
+        5
+
+        >>> count_inv_naive([10, 16, 46, 11, 17, 49, 35])
+        5
+
+        >>> count_inv_naive(
+        ...     [129, 169, 315, 349, 355, 33, 85, 362, 230, 499]
+        ... )
+        14
+
+        >>> count_inv_naive(
+        ...     [470, 461, 263, 200, 476, 365, 276, 104, 85, 357]
+        ... )
+        32
+
+        >>> count_inv_naive(
+        ...    [
+        ...        285, 531, 634, 46, 458, 897, 696, 459, 380, 343, 284, 596,
+        ...        45, 597, 143, 331, 716, 314, 341, 784
+        ...        ]
+        ... )
+        97
+
+        >>> count_inv_naive([188, 819, 466, 493, 641])
+        3
+    """
+    nums_length = len(nums)
+    followed_by_big = 0
+
+    i, j = 0, 0
+    for i in range(0, nums_length - 1):
+        for j in range(i + 1, nums_length):
+            if nums[i] > nums[j]:
+                followed_by_big += 1
+
+    return followed_by_big
+
+
+def random_list(min_val, max_val, length):
+    return [randint(min_val, max_val) for _ in range(length)]
