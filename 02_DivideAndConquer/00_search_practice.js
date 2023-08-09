@@ -47,3 +47,31 @@ function binarySearch(arr, target, start = 0, end = arr.length - 1) {
     return binarySearch(arr, target, start, middle - 1);
   }
 }
+
+/** Reverser Binary Search
+ * @param {number[]} array // sorted array
+ * @param {number} target // target to search
+ * @return {number} // index of target or -1 if not found
+ * Given an array of integers nums which is sorted in desecending order,
+ * and an integer target, write a function to search target in nums.
+ * If target exists, then return its index. Otherwise, return -1.
+ */
+function ReverseBinarySearch(array, target, start = 0, end = array.length - 1) {
+  if (start > end) {
+    return -1;
+  }
+
+  let middle = Math.floor(start + (end - start) / 2);
+  let middleElem = array[middle];
+
+  if (middleElem === target) {
+    return middle;
+  }
+
+  if (middleElem > target) {
+    return ReverseBinarySearch(array, target, middle + 1, end);
+  }
+  if (middleElem < target) {
+    return ReverseBinarySearch(array, target, start, middle - 1);
+  }
+}
