@@ -37,9 +37,9 @@ function findFloor(array, target, start = 0, end = array.length - 1) {
   end--;
 
   // Calculates the middle index of the partition
-  middleIndex = Math.floor((start + end) / 2);
+  let middleIndex = Math.floor((start + end) / 2);
   // And gets the middle element of the partition
-  middle = array[middleIndex];
+  let middle = array[middleIndex];
 
   // There are three possible cases for the floor:
   // 1. It is the target itself and/or the middle element of the partition
