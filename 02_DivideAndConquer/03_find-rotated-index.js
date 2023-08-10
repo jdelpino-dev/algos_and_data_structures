@@ -10,9 +10,10 @@
  * @param {number} target // target to search
  * @return {number} // index of target or -1 if not found
  *
- * Given a once-rotated array of sorted integers and an integer target,
- * search target num using a modified binary search. If target exists,
- * then return its index. Otherwise, return -1.
+ * Given a rotated array of sorted integers and an integer target,
+ * search target index using a modified binary search. If target exists,
+ * then return its index. Otherwise, return -1. It uses a helper function
+ * to find the rotation pivot: findRotationPivot().
  */
 function findRotatedIndex(array, target) {
   // Calculates the end index of the array.
@@ -44,16 +45,14 @@ function findRotatedIndex(array, target) {
   }
 }
 
-/** Recursively searches for the rotation pivot of a once-rotated array
+/** Recursively searches for the rotation pivot of a rotated array of sorted
+ * integers. Uses a divide and conquer approach.
  * @param {number[]} array // sorted & rotated array of integers
  * @param {number} start // start index of the search in array
  * @param {number} end // end index of the search in array
  * @return {number} // index of the rotation pivot or -1 if not found.
  *                     rotation pivot  = the last element of the
  *                                       left partition of the array.
- *
- * Given a once-rotated array of sorted integers finds the rotation pivot.
- * If the array is not rotated, then return -1.
  */
 function findRotationPivot(array, start = 0, end = array.length - 1) {
   // Calculates the length of the search partition.
