@@ -68,7 +68,8 @@ def count_invs_and_sort(nums, start=0, end=None):
         >>> count_invs_and_sort([188, 819, 466, 493, 641])[1]
         3
 
-        >>> medium_array = array_from_file('03_data/03_Medium_IntegerArray.txt')
+        >>> medium_array = array_from_file("03_data/"
+        ...                                "03_Medium_IntegerArray.txt")
         >>> count_invs_and_sort(medium_array)[1]
         14696
 
