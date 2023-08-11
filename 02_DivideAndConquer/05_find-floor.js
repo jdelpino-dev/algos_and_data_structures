@@ -6,49 +6,33 @@
 */
 
 function findFloor(array, target, start = 0, end = array.length - 1) {
-  // Calculates the partition length
-  let partitionLength = end - start + 1;
-
-  // Gets first and last elements of the array
-  let first = array[start];
-  let last = array[end];
-
-  // Base cases
-  // 1. If array is empty or target is less than first element,
-  // there is no floor: returns -1.
-  if (partitionLength === 0 || target < first) {
+  // Base case
+  // If array is empty or target is less than the first element,
+  // there is no floor.
+  if (array.length === 0 || target < array[start]) {
     return -1;
-    // 2. If target is equal to first element, the floor trivially
-    // the target itself.
-  } else if (target === first) {
-    return target;
-  } else if (target >= last) {
-    // 3. If target is greater than or equal to last element, the floor
-    // is the last element or the target itself.
-    return last;
+  } else if (start === end) {
+    // If the partition is of size 1, then the floor is the first element
+    return array[start];
   }
 
-  // Preparing the recursive case: target's floor is between first and last elements of the
-  // array partition. We need to find the middle element of the partition.
-
-  // Updates the start and end indexes of the partition
-  // to narrow down the search.
-  start++;
-  end--;
-
+  // Preparing the recursive case
   // Calculates the middle index of the partition
   let middleIndex = Math.floor((start + end) / 2);
   // And gets the middle element of the partition
   let middle = array[middleIndex];
+  let rightNeighbor = array[middleIndex + 1];
 
   // There are three possible cases for the floor:
-  // 1. It is the target itself and/or the middle element of the partition
-  if (target >= middle && target < array[middleIndex + 1]) {
+  // 1. The floor is middle, either because it is the target or because
+  //    it is the last element before the target
+  if (target === middle || (target > middle && target < rightNeighbor)) {
     return middle;
-    // 2. It is in the in the left half of the partition
+    // 2 Recursive case
+    // 2.1 It is in the left half of the partition
   } else if (target > middle) {
     return findFloor(array, target, middleIndex + 1, end);
-    // 3. It is in the right half of the partition
+    // 2.3 It is in the right half of the partition
   } else if (target < middle) {
     return findFloor(array, target, start, middleIndex - 1);
   }
