@@ -75,3 +75,14 @@ def partition_random(array, start, end):
         * index of the pivot element
     """
     ...
+
+
+def main():
+    """
+    This function runs the main program.
+    """
+    ...
+
+
+if __name__ == "__main__":
+    main()
