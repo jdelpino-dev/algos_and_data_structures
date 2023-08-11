@@ -101,6 +101,23 @@ def pivot_random(array: list, start: int, end: int) -> int:
     return randint(0, len(array))
 
 
+def array_from_file(filename):
+    """
+    Helper function to create an array of integers from a text file.
+
+    Parameters:
+    filename (str): the name of the file containing the array of integers
+
+    Returns:
+    nums (list): a list of integers
+    """
+
+    with open(filename) as file:
+        nums = [int(line) for line in file]
+
+    return nums
+
+
 def main():
     """
     This function runs the main program.
