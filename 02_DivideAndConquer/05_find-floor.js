@@ -6,33 +6,30 @@
 */
 
 function findFloor(array, target, start = 0, end = array.length - 1) {
-  // Base case
-  // If array is empty or target is less than the first element,
-  // there is no floor.
+  // Base cases:
+  // 1. No floor if array is empty or target smaller than the array's min.
   if (array.length === 0 || target < array[start]) {
     return -1;
+    // 2. Instead, if the partition is of size 1,
+    //    then the floor is the first element
   } else if (start === end) {
-    // If the partition is of size 1, then the floor is the first element
     return array[start];
   }
 
-  // Preparing the recursive case
-  // Calculates the middle index of the partition
+  // Main case:
   let middleIndex = Math.floor((start + end) / 2);
-  // And gets the middle element of the partition
   let middle = array[middleIndex];
   let rightNeighbor = array[middleIndex + 1];
 
-  // There are three possible cases for the floor:
-  // 1. The floor is middle, either because it is the target or because
-  //    it is the last element before the target
+  // There are two options  :
+  // 1. We found the floor and is the middle:
   if (target === middle || (target > middle && target < rightNeighbor)) {
     return middle;
-    // 2 Recursive case
-    // 2.1 It is in the left half of the partition
+    // 2. We execute the recursive call to find the floor:
+    // 2.1 To the left half of the partition:
   } else if (target > middle) {
     return findFloor(array, target, middleIndex + 1, end);
-    // 2.3 It is in the right half of the partition
+    // 2.2 Or to the right half of the partition:
   } else if (target < middle) {
     return findFloor(array, target, start, middleIndex - 1);
   }
