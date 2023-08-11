@@ -5,6 +5,17 @@
   Solution by José Delpino
 */
 
+/**
+ * Finds the floor of number in a sorted array of integers.
+ * @param {Array} array - A sorted array of numbers.
+ * @param {Number} target - The number whose floor we want to find.
+ * @param {Number} start - The starting index of the array partition.
+ * @param {Number} end - The ending index of the array partition.
+ * @returns {Number} - The floor of the target number, that is,
+ *                     the largest number in the array that is smaller than
+ *                     or equal to the target.
+ */
+
 function findFloor(array, target, start = 0, end = array.length - 1) {
   // Base cases:
   // 1. No floor if array is empty or target smaller than the array's min.
