@@ -1,6 +1,8 @@
 from typing import Callable
-from statistics import median
-from random import randint
+from random import seed, randint
+
+# Define global comparisson counter
+global comparissons
 
 
 def quick_sort(
@@ -90,7 +92,7 @@ def quick_sort(
     swap(array, start, pivot)
 
     # Partition the array and gets new pivot index
-    pivot = partition(array, start, end)
+    pivot = partition(array, start, end, count_comparisons)
 
     quick_sort(array, start, pivot - 1, choose_pivot,
                count_comparisons=count_comparisons)
@@ -98,7 +100,8 @@ def quick_sort(
                count_comparisons=count_comparisons)
 
 
-def partition(array: list, start: int, end: int) -> int:
+def partition(array: list, start: int, end: int,
+              count_comparisons: bool) -> int:
     """
     This function partitions an array around the first element.
 
@@ -120,6 +123,13 @@ def partition(array: list, start: int, end: int) -> int:
             swap(array, partition_boundary, current)
             # Restores partition invariant arounf pivot
             partition_boundary += 1
+
+    # Update the comparisson counter
+    if count_comparisons:
+        global comparissons
+        # comparissons += end - start
+        comparissons += end - start
+
     # Places the pivot in the right place with a swap.
     swap(array, pivot, partition_boundary - 1)
     # Updates its index
@@ -155,24 +165,22 @@ def pivot_last(array: list, start: int, end: int) -> int:
     return end
 
 
-def pivot_median_of_three(array: list, start: int, end: int) -> int:
+def pivot_median_of_three(array, start, end):
     """
     This function partitions an array around the median of
-    the first, middle and last element.
+    the first, middle, and last element using our logic.
     """
-    first = array[start]
-    last = array[end]
+    first, last = start, end
+    mid = first + (last - first) // 2
 
-    middle_index = start + (end - start) // 2
-    middle = array[middle_index]
-    median_element = median(first, middle, last)
-
-    if median_element == first:
-        return start
-    if median_element == middle:
-        return middle
-    if median_element == last:
-        return end
+    # Determine which of the three is the median
+    if (array[first] < array[mid] < array[last]
+            or array[last] < array[mid] < array[first]):
+        return mid
+    elif (array[mid] < array[first] < array[last]
+          or array[last] < array[first] < array[mid]):
+        return first
+    return last
 
 
 def pivot_random(array: list, start: int, end: int) -> int:
@@ -203,7 +211,45 @@ def main():
     """
     This function runs the main program.
     """
-    ...
+    global comparissons
+
+    big_array = array_from_file(
+        "./04_data/Numbers_for_QuickSort.txt")
+
+    # # Prints comparisson with pivot first
+    # comparissons = 0
+    # quick_sort(big_array, 0, len(big_array) - 1,
+    #            pivot_first, count_comparisons=True)
+    # print(f"It made {comparissons} using a pivot first.")
+
+    # # Prints comparisson with pivot last
+    # comparissons = 0
+    # quick_sort(big_array, 0, len(big_array) - 1,
+    #            pivot_last, count_comparisons=True)
+    # print(f"It made {comparissons} using a pivot last")
+
+    # Prints comparisson with pivot median of first, middle and last
+    comparissons = 0
+    quick_sort(big_array, 0, len(big_array) - 1,
+               pivot_median_of_three, count_comparisons=True)
+    print(f"It made {comparissons} pivot median of first, middle and last.")
+
+    # # Prints comparisson with pivot median of first, middle and last
+    # arr1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    #         12, 13, 14, 15, 16, 17, 18, 19, 20]
+    # arr2 = [2, 20, 1, 15, 3, 11, 13, 6, 16,
+    #         10, 19, 5, 4, 9, 8, 14, 18, 17, 7, 12]
+    # comparissons = 0
+    # quick_sort(arr1, 0, len(arr1) - 1,
+    #            pivot_median_of_three, count_comparisons=True)
+    # print(f"It made {comparissons} pivot median of first, middle and last.")
+
+    # # Prints comparisson with random pivot
+    seed(90652978357490)
+    # comparissons = 0
+    # quick_sort(big_array, 0, len(big_array) - 1,
+    #            pivot_random, count_comparisons=True)
+    # print(f"It made {comparissons} using a random pivot.")
 
 
 if __name__ == "__main__":
