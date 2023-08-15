@@ -33,3 +33,72 @@ The basic data element of this structures are the edges, which are
 represented as tuples of nodes and the nodes are represented as strings
 or numbers.
 """
+
+from typing import Union, Tuple, Dict
+
+# Defines the type primitives of the graph
+node_type = Union[str, int]
+edge_type = Tuple[Union[str, int], Union[str, int]]
+nodes_dict = Dict[node_type, Dict[node_type, int]]
+edges_dict = Dict[edge_type, int]
+
+# Defines the graph class
+
+
+class Graph (type="multigraph"):
+    def __init__(self):
+        """Initializes a graph object.
+        """
+        self._nodes_dict: nodes_dict = {}
+        self._edges_dict: edges_dict = {}
+        self._type = type
+
+    def __len__(self) -> int:
+        """Returns the number of nodes of the graph.
+        """
+        return len(self._nodes_dict)
+
+    def num_nodes(self) -> int:
+        """Returns the number of nodes of the graph.
+        """
+        return len(self._nodes_dict)
+
+    def num_edges(self) -> int:
+        """Returns the number of edges of the graph.
+        """
+        return len(self._edges_dict)
+
+    def size(self) -> tuple:
+        """Returns the number of edges of the graph.
+        """
+        return (self.num_nodes(), self.num_edges())
+
+    def is_multigraph(self) -> bool:
+        """Returns True if the graph is a multigraph.
+        """
+        return self._type == "multigraph"
+
+    def nodes(self) -> nodes_dict:
+        """Returns the nodes of the graph.
+        """
+        return self._nodes_dict
+
+    def edges(self) -> edges_dict:
+        """Returns the edges of the graph.
+        """
+        return self._edges_dict
+
+    def node_list(self) -> list:
+        """Returns the list of nodes of the graph.
+        """
+        return list(self._nodes_dict.keys())
+
+    def edge_list(self) -> list:
+        """Returns the list of edges of the graph.
+        """
+        return list(self._edges_dict.keys())
+
+    def neighbors_list(self, node: type) -> list:
+        """Returns the list of neighbors of a node.
+        """
+        return list(self._nodes_dict[node].keys())
