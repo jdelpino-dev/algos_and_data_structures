@@ -183,6 +183,11 @@ class Graph:
         """
         return self._type == "multigraph"
 
+    def make_multigraph(self) -> None:
+        """Converts the graph into a multigraph.
+        """
+        self._multigraph = True
+
     def is_neighbor(self, node1: Node, node2: Node) -> bool:
         """Returns True if node2 is a neighbor of node1.
         """
