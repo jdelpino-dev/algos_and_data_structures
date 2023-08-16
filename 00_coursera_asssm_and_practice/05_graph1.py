@@ -36,38 +36,142 @@ or numbers.
 
 from typing import Union, Tuple, Dict
 
-# Defines the type primitives of the graph
-node_type = Union[str, int]
-edge_type = Tuple[Union[str, int], Union[str, int]]
-nodes_dict = Dict[node_type, Dict[node_type, int]]
-edges_dict = Dict[edge_type, int]
+# Defines the type primitives for the graph class
+Node = Union[str, int]
+Edge = Tuple[Node, Node]
+GraphElement = Union[Node, Edge]
+NeighboorDict = Dict[Node, int]
+NodeDict = Dict[Node, NeighboorDict]
+EdgeDict = Dict[Edge, int]
+ElementDict = Union[NodeDict, EdgeDict]
+ElementValue = Union[NeighboorDict, int]
 
 # Defines the graph class
 
 
-class Graph (type="multigraph"):
-    def __init__(self):
+class Graph:
+    def __init__(self, directed: bool = False, multigraph: bool = False):
         """Initializes a graph object.
         """
-        self._nodes_dict: nodes_dict = {}
-        self._edges_dict: edges_dict = {}
-        self._type = type
+        self._nodes_dict: NodeDict = {}
+        self._edges_dict: EdgeDict = {}
+        self._directed = directed
+        self._multigraph = multigraph
 
     def __len__(self) -> int:
         """Returns the number of nodes of the graph.
         """
         return len(self._nodes_dict)
 
+    def __contains__(self, element: GraphElement) -> bool:
+        """Returns True if the element is in the graph.
+        """
+        if self._is_node(element):
+            return element in self._nodes_dict
+        elif self._is_edge(element):
+            if self._directed:
+                return element in self._edges_dict
+            else:
+                return (element in self._edges_dict
+                        or self._invert_edge(element) in self._edges_dict)
+        else:
+            raise TypeError("Element must be a valid node (string or int)"
+                            "or an edge (tuple of nodes)")
+
+    def __iter__(self):
+        """Returns an iterator for the nodes of the graph.
+        """
+        return iter(self._nodes_dict.keys())
+
+    def __del__(self):
+        """Deletes the graph.
+        """
+        del self._nodes_dict
+        del self._edges_dict
+
+    def __getitem__(self, element: GraphElement) -> NeighboorDict:
+        """Returns the neighbors of a node or the counter of an edge.
+        """
+        if element in self:
+            if self._is_node(element):
+                return self._nodes_dict[element]
+            elif self._is_edge(element):
+                if self._directed:
+                    return self._edges_dict[element]
+                else:
+                    if element in self._edges_dict:
+                        return self._edges_dict[element]
+                    else:
+                        return self._edges_dict[self._invert_edge(element)]
+
+    def __delitem__(self, element: GraphElement) -> None:
+        if element in self:
+            if self._is_node(element):
+                self.delete_node(element)
+            elif self._is_edge(element):
+                self.delete_edge(element)
+            else:
+                raise TypeError("Element must be a valid node (string or int)"
+                                "or an edge (tuple of nodes)")
+        else:
+            raise ValueError("Element not in graph")
+
+    def _is_inverse_edge(self, edge: Edge) -> bool:
+        """Returns True if the edge is the inverse of another edge.
+        """
+        inverse_edge = tuple(list(edge)[::-1])
+        return inverse_edge in self._edges_dict
+
+    def _invert_edge(self, edge: Edge) -> Edge:
+        """Returns the inverse of an edge.
+        """
+        return tuple(list(edge)[::-1])
+
+    @property
+    def nodes(self) -> NodeDict:
+        """Returns the nodes of the graph.
+        """
+        return self._nodes_dict
+
+    @property
+    def edges(self) -> EdgeDict:
+        """Returns the edges of the graph.
+        """
+        return self._edges_dict
+
+    @property
+    def neighbors(self, node: Node) -> NeighboorDict:
+        """Returns the list of neighbors of a node.
+        """
+        if node not in self._nodes_dict:
+            raise ValueError("Node not in graph")
+        return self._nodes_dict[node]
+
+    @property
+    def directed(self) -> bool:
+        """Returns True if the graph is directed.
+        """
+        return self._directed
+
+    @property
+    def multigraph(self) -> bool:
+        """Returns True if the graph is a multigraph.
+        """
+        return self._multigraph
+
+    @property
     def num_nodes(self) -> int:
         """Returns the number of nodes of the graph.
         """
         return len(self._nodes_dict)
 
+    @property
     def num_edges(self) -> int:
         """Returns the number of edges of the graph.
         """
         return len(self._edges_dict)
 
+    @property
     def size(self) -> tuple:
         """Returns the number of edges of the graph.
         """
@@ -78,15 +182,19 @@ class Graph (type="multigraph"):
         """
         return self._type == "multigraph"
 
-    def nodes(self) -> nodes_dict:
-        """Returns the nodes of the graph.
+    def is_neighbor(self, node1: Node, node2: Node) -> bool:
+        """Returns True if node2 is a neighbor of node1.
         """
-        return self._nodes_dict
+        if node1 not in self._nodes_dict:
+            raise ValueError("Node not in graph")
+        return node2 in self._nodes_dict[node1]
 
-    def edges(self) -> edges_dict:
-        """Returns the edges of the graph.
+    def is_edge(self, node1: Node, node2: Node) -> bool:
+        """Returns True if node2 is a neighbor of node1.
         """
-        return self._edges_dict
+        if node1 not in self._nodes_dict:
+            raise ValueError("Node not in graph")
+        return (node1, node2) in self._edges_dict
 
     def node_list(self) -> list:
         """Returns the list of nodes of the graph.
@@ -102,3 +210,153 @@ class Graph (type="multigraph"):
         """Returns the list of neighbors of a node.
         """
         return list(self._nodes_dict[node].keys())
+
+    def degree(self, node: Node) -> int:
+        """Returns the degree of a node.
+        """
+        return len(self._nodes_dict[node])
+
+    def add_node(self, node: Node) -> None:
+        """Adds a node to the graph.
+        """
+        if node not in self:
+            self._nodes_dict[node] = {}
+        else:
+            raise ValueError("Node already in graph")
+
+    def delete_node(self, node: Node) -> None:
+        """Deletes a node from the graph.
+        """
+        if node not in self._nodes_dict:
+            raise ValueError("Node not in graph")
+        del self._nodes_dict[node]
+        for neighbor in self._nodes_dict:
+            if node in self._nodes_dict[neighbor]:
+                del self._nodes_dict[neighbor][node]
+        for edge in self._edges_dict:
+            if node in edge:
+                del self._edges_dict[edge]
+
+    def add_edge(self, node1: Node, node2: Node) -> None:
+        """Adds an edge to the graph. Behaves differently depending if the
+        graph is multi or simple, and directed or undirected.
+        """
+        # Ensure nodes exist in the graph
+        for node in [node1, node2]:
+            if node not in self:
+                self.add_node(node)
+
+        # Add or update the edge
+        self._manage_edge((node1, node2), (node2, node1), action="add")
+
+    # Helper to manage edge insertion, deletion, and verification
+    def _manage_edge(self, edge, inverse_edge=None, action="add"):
+        if action == "add":
+            # Ensure nodes exist in _nodes_dict
+            if edge[0] not in self._nodes_dict:
+                self._nodes_dict[edge[0]] = {}
+            if edge[1] not in self._nodes_dict:
+                self._nodes_dict[edge[1]] = {}
+
+            # Add or update the edge
+            if edge not in self:
+                self._edges_dict[edge] = 1
+                self._nodes_dict[edge[0]][edge[1]] = 1
+                if not self._directed:
+                    self._nodes_dict[edge[1]][edge[0]] = 1
+            else:
+                if self._multigraph:
+                    if self._directed:
+                        edge = self._which_edge(edge)
+                    else:
+                        self._nodes_dict[edge[1]][edge[0]] += 1
+                    self._edges_dict[edge] = self._edges_dict.get(edge, 0) + 1
+                    self._nodes_dict[edge[0]][edge[1]] = (
+                        self._nodes_dict[edge[0]]
+                        .get(edge[1], 0) + 1
+                    )
+
+                else:
+                    raise ValueError("Edge already in graph")
+
+    def _which_edge(self, edge):
+        if edge in self._edges_dict:
+            return edge
+        elif (not self._directed
+              and self._is_inverse_edge(edge) in self._edges_dict):
+            return self._is_inverse_edge(edge)
+        else:
+            raise ValueError("Edge not in graph")
+
+    def delete_edge(self, edge: Edge) -> None:
+        """Deletes an edge from the graph.
+        """
+        if edge not in self._edges_dict:
+            raise ValueError("Edge not in graph")
+        del self._edges_dict[edge]
+        if not self._directed:
+            inverse_edge = self._invert_edge(edge)
+            if inverse_edge in self._edges_dict:
+                del self._edges_dict[inverse_edge]
+
+    @classmethod
+    def from_file(cls, file_name: str = None,
+                  node_type: Node = int,
+                  directed: bool = False,
+                  multigraph: bool = False) -> "Graph":
+        """Creates a graph from a file.
+
+        The file muts contain the adjacency list representation of graph that
+        can be simple or multigraph, and directed or undirected. The nodes
+        must be either strings or integers. The first column represents
+        the node label, and the rest of the row (other entries except
+        the first column) tells all the nodes that are adjacent.
+
+        For example, the row 1 2 3 4 means that the node 1 is adjacent
+        to the nodes 2, 3 and 4.
+        """
+        graph = cls(directed, multigraph)
+        with open(file_name) as f:
+            for line in f:
+                # Trim the line and skip if it's empty or starts with a comment
+                line = line.strip()
+                if not line or line.startswith('"""'):
+                    continue
+
+                # Split and process the line
+                line_parts = line.split()
+                node = node_type(line_parts[0])
+                for neighbor in line_parts[1:]:
+                    graph.add_edge(node, node_type(neighbor))
+
+        return graph
+
+    def _is_node(self, obj) -> bool:
+        return isinstance(obj, (str, int))
+
+    def _is_edge(self, obj) -> bool:
+        return (isinstance(obj, tuple)
+                and len(obj) == 2
+                and self._is_node(obj[0])
+                and self._is_node(obj[1]))
+
+    def _is_neighboordict(self, obj) -> bool:
+        return (isinstance(obj, dict)
+                and all(self._is_node(k)
+                        and isinstance(v, int) for k, v in obj.items()))
+
+    def _is_nodedict(self, obj) -> bool:
+        return (isinstance(obj, dict)
+                and all(self._is_node(k)
+                        and self._is_neighboordict(v) for k, v in obj.items()))
+
+    def _is_edgedict(self, obj) -> bool:
+        return (isinstance(obj, dict)
+                and all(self._is_edge(k)
+                        and isinstance(v, int) for k, v in obj.items()))
+
+    def _is_elementdict(self, obj) -> bool:
+        return self._is_nodedict(obj) or self._is_edgedict(obj)
+
+    def _is_elementvalue(self, obj) -> bool:
+        return self._is_neighboordict(obj) or isinstance(obj, int)
