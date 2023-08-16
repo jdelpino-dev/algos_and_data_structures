@@ -31,12 +31,17 @@ def karger_min_cuts(contraction_graph: Graph, seed_value) -> int:
         edge = contraction_graph.random_edge(seed_value=seed_value)
         contraction_graph.contract_nodes(*edge)
         contraction_graph.delete_self_loops(edge[0])
+    print(f"Graph size: {contraction_graph.size}")
+    print(f"Graph nodes: {contraction_graph.nodes}")
+    print(f"Graph edges: {contraction_graph.edges}")
 
     # Get one of the two remaining nodes.
-    graphnodes = list(contraction_graph.nodes)
-    node = graphnodes[0]
+    # graphnodes = list(contraction_graph.nodes)
+    # node = graphnodes[0]
     # Return the number of edges between the two remaining nodes.
-    return contraction_graph.degree(node)
+    # return contraction_graph.degree(node)
+    supernode = contraction_graph.edges_list()[0]
+    return contraction_graph[supernode]
 
 
 # Main block
@@ -60,9 +65,9 @@ if __name__ == "__main__":
                             node_type=int,
                             directed=False,
                             multigraph=False)
-    print(repeat_karger_min_cuts(graph, 306000))
+    # print(repeat_karger_min_cuts(graph, 306000))
     # print(repeat_karger_min_cuts(graph, 1500))
-    # print(repeat_karger_min_cuts(graph, 60))
+    print(repeat_karger_min_cuts(graph, 60))
     # edge = (109, 154)
     # graph.turn_into_multigraph()
     # graph.contract_nodes(*edge)

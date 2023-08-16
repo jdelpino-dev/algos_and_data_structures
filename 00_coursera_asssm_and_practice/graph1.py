@@ -351,21 +351,38 @@ class Graph:
                 else:
                     # Canonicalize edge for undirected graphs
                     edge = tuple(sorted([node1, neighbor]))
+
+                # Creates source edge
+                if self._directed:
+                    source_edge = (node2, neighbor)
+                else:
+                    # Canonicalize edge for undirected graphs
+                    source_edge = tuple(sorted([node2, neighbor]))
+
                 # Add or update the edge
                 self._edges_dict[edge] = (
-                    self._edges_dict.get(edge, 0) + 1
-                    + self._edges_dict.get((node2, neighbor), 0)
+                    self._edges_dict.get(edge, 0)
+                    + self._edges_dict.get(source_edge, 0)
                 )
-                # Update the neighbors of node1
+                if self._directed:
+                    self._edges_dict[edge] = (
+                        self._edges_dict.get(edge, 0)
+                        + self._edges_dict.get(
+                            self._invert_edge(source_edge), 0
+                        )
+                    )
+
+                # Update the neighbor in node1 neighbor dictionary
                 self._nodes_dict[node1][neighbor] = (
-                    self._nodes_dict[node1].get(neighbor, 0) + 1
+                    self._nodes_dict[node1].get(neighbor, 0)
                     + self._nodes_dict[node2].get(neighbor, 0)
                 )
+
                 # Update the neighbor if the graph is undirected
                 if (not self._directed and neighbor != node1
                         and neighbor in self._nodes_dict):
                     self._nodes_dict[neighbor][node1] = (
-                        self._nodes_dict[neighbor].get(node1, 0) + 1
+                        self._nodes_dict[neighbor].get(node1, 0)
                         + self._nodes_dict[neighbor].get(node2, 0)
                     )
 
