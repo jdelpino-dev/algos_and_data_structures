@@ -35,7 +35,7 @@ or numbers.
 """
 
 from typing import Union, Tuple, Dict
-from random import choice
+from random import seed, choice
 
 # Defines the type primitives for the graph class
 Node = Union[str, int]
@@ -212,14 +212,16 @@ class Graph:
         """
         return list(self._nodes_dict[node].keys())
 
-    def random_node(self) -> Node:
+    def random_node(self, seed_value=576856) -> Node:
         """Returns a random node of the graph.
         """
+        seed(seed_value)
         return choice(self.node_list())
 
-    def random_edge(self) -> Edge:
+    def random_edge(self, seed_value=9912) -> Edge:
         """Returns a random edge of the graph.
         """
+        seed(seed_value)
         return choice(self.edge_list())
 
     def degree(self, node: Node) -> int:
@@ -348,7 +350,6 @@ class Graph:
         self.delete_node(node2)
 
     def delete_loops(self, node: Node) -> None:
-
         # Delete loops
         if node in self._nodes_dict[node]:
             del self._nodes_dict[node][node]
