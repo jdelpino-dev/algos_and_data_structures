@@ -36,6 +36,7 @@ or numbers.
 
 from typing import Union, Tuple, Dict
 from random import seed, choice
+import copy
 
 # Defines the type primitives for the graph class
 Node = Union[str, int]
@@ -104,18 +105,6 @@ class Graph:
                         return self._edges_dict[element]
                     else:
                         return self._edges_dict[self._invert_edge(element)]
-
-    def __delitem__(self, element: GraphElement) -> None:
-        if element in self:
-            if self._is_node(element):
-                self.delete_node(element)
-            elif self._is_edge(element):
-                self.delete_edge(element)
-            else:
-                raise TypeError("Element must be a valid node (string or int)"
-                                "or an edge (tuple of nodes)")
-        else:
-            raise ValueError("Element not in graph")
 
     def _is_inverse_edge(self, edge: Edge) -> bool:
         """Returns True if the edge is the inverse of another edge.
@@ -191,8 +180,9 @@ class Graph:
     def is_neighbor(self, node1: Node, node2: Node) -> bool:
         """Returns True if node2 is a neighbor of node1.
         """
-        if node1 not in self._nodes_dict:
-            raise ValueError("Node not in graph")
+        if node1 not in self._nodes_dict or node2 not in self._nodes_dict:
+            raise ValueError("Not neighbors, one node"
+                             "or both nodes is not in graph")
         return node2 in self._nodes_dict[node1]
 
     def is_edge(self, node1: Node, node2: Node) -> bool:
@@ -212,32 +202,37 @@ class Graph:
         """
         return list(self._edges_dict.keys())
 
-    def neighbors_list(self, node: type) -> list:
+    def neighbors_list(self, node: Node) -> list:
         """Returns the list of neighbors of a node.
         """
         return list(self._nodes_dict[node].keys())
 
-    def random_node(self, seed_value=576856) -> Node:
+    def random_node(self, seed_value) -> Node:
         """Returns a random node of the graph.
         """
         seed(seed_value)
         return choice(self.nodes_list())
 
-    def random_edge(self, seed_value=9912) -> Edge:
+    def random_edge(self, seed_value) -> Edge:
         """Returns a random edge of the graph.
         """
         seed(seed_value)
         return choice(self.edges_list())
 
-    def degree(self, node: Node) -> int:
+    def degree(self, node: Node) -> Union[int, tuple]:
         """Returns the degree of a node.
         """
-        return len(self._nodes_dict[node])
+        if node not in self._nodes_dict:
+            raise ValueError("Node not in graph")
+        if self._multigraph:
+            return sum(self._nodes_dict[node].values())
+        else:
+            return len(self._nodes_dict[node])
 
     def add_node(self, node: Node) -> None:
         """Adds a node to the graph.
         """
-        if node not in self:
+        if node not in self._nodes_dict:
             self._nodes_dict[node] = {}
         else:
             raise ValueError("Node already in graph")
@@ -246,14 +241,19 @@ class Graph:
         """Deletes a node from the graph.
         """
         if node not in self._nodes_dict:
-            raise ValueError("Node not in graph")
-        del self._nodes_dict[node]
-        for neighbor in self._nodes_dict:
-            if node in self._nodes_dict[neighbor]:
-                del self._nodes_dict[neighbor][node]
+            return
+
+        # Deletes edges with node
         for edge in self.edges_list():
-            if node in edge and edge in self:
+            if node in edge:
                 del self._edges_dict[edge]
+
+        # Deletes node from neighbors
+        for neighbor in self._nodes_dict[node]:
+            del self._nodes_dict[neighbor][node]
+
+        # Deletes node
+        del self._nodes_dict[node]
 
     def add_edge(self, node1: Node, node2: Node) -> None:
         """Adds an edge to the graph. Behaves differently depending if the
@@ -264,55 +264,26 @@ class Graph:
             if node not in self:
                 self.add_node(node)
 
-        # Add or update the edge
-        self._manage_edge((node1, node2), (node2, node1), action="add")
+        # Canonicalize edge for undirected graphs
+        if not self._directed:
+            edge = tuple(sorted([node1, node2]))
 
-    # Helper to manage edge insertion, deletion, and verification
-    def _manage_edge(self, edge, inverse_edge=None, action="add"):
-        if action == "add":
-            # Ensure nodes exist in _nodes_dict
-            for node in edge:
-                if node not in self._nodes_dict:
-                    self._nodes_dict[node] = {}
-
-            # Canonicalize edge for undirected graphs
-            if not self._directed:
-                edge = tuple(sorted(edge))
-
+        # Update the graph
+        if self._multigraph or edge not in self._edges_dict:
             # Add or update the edge
-            if self._multigraph or edge not in self._edges_dict:
-                self._edges_dict[edge] = self._edges_dict.get(edge, 0) + 1
-                self._nodes_dict[edge[0]][edge[1]] = (
-                    self._nodes_dict[edge[0]].get(edge[1], 0) + 1
+            self._edges_dict[edge] = self._edges_dict.get(edge, 0) + 1
+            self._nodes_dict[edge[0]][edge[1]] = (
+                self._nodes_dict[edge[0]].get(edge[1], 0) + 1
+            )
+
+            # Update the neighbors of the nodes
+            if not self._directed:
+                self._nodes_dict[edge[1]][edge[0]] = (
+                    self._nodes_dict[edge[1]].get(edge[0], 0) + 1
                 )
-
-                # If the graph is undirected, update the inverse edge as well
-                if not self._directed:
-                    self._nodes_dict[edge[1]][edge[0]] = (
-                        self._nodes_dict[edge[1]].get(edge[0], 0) + 1
-                    )
-
-        elif action == "remove":
-            # Ensure the edge exists
-            if edge in self._edges_dict:
-                self._edges_dict[edge] -= 1
-                self._nodes_dict[edge[0]][edge[1]] -= 1
-
-                # If the graph is undirected, update the inverse edge as well
-                if not self._directed:
-                    self._nodes_dict[edge[1]][edge[0]] -= 1
-
-                # Clean up if necessary
-                if self._edges_dict[edge] == 0:
-                    del self._edges_dict[edge]
-                if self._nodes_dict[edge[0]][edge[1]] == 0:
-                    del self._nodes_dict[edge[0]][edge[1]]
-                if (not self._directed
-                        and self._nodes_dict[edge[1]][edge[0]] == 0):
-                    del self._nodes_dict[edge[1]][edge[0]]
-
-        else:
-            raise ValueError(f"Unknown action '{action}' in _manage_edge")
+            self._nodes_dict[edge[0]][edge[1]] = (
+                self._nodes_dict[edge[0]].get(edge[1], 0) + 1
+            )
 
     def _which_edge(self, edge):
         if edge in self._edges_dict:
@@ -327,11 +298,30 @@ class Graph:
         """
         if edge not in self._edges_dict:
             raise ValueError("Edge not in graph")
-        del self._edges_dict[edge]
-        if not self._directed:
-            inverse_edge = self._invert_edge(edge)
-            if inverse_edge in self._edges_dict:
+
+        inverse_edge = self._invert_edge(edge)
+
+        if not self._multigraph:
+            del self._edges_dict[edge]
+            if not self._directed and inverse_edge in self._edges_dict:
                 del self._edges_dict[inverse_edge]
+        else:
+            self._nodes_dict[edge[0]][edge[1]] -= 1
+            if not self._directed and inverse_edge in self._edges_dict:
+                self._nodes_dict[edge[1]][edge[0]] -= 1
+
+    def delte_all_parallel_edges(self, edge: Edge) -> None:
+        """Deletes all parallel edges from the graph.
+        """
+        if edge not in self._edges_dict:
+            raise ValueError("Edge not in graph")
+
+        inverse_edge = self._invert_edge(edge)
+
+        del self._edges_dict[edge]
+
+        if not self._directed and inverse_edge in self._edges_dict:
+            del self._edges_dict[inverse_edge]
 
     def contract_nodes(self, node1: Node, node2: Node) -> None:
         """Contracts two nodes of the graph into a supernode preserving
@@ -340,32 +330,45 @@ class Graph:
         and new loops that may be created.
         """
         # Ensure nodes exist in the graph
-        if node1 not in self._nodes_dict or node2 not in self._nodes_dict:
-            raise ValueError("Node not in graph")
-        if node2 not in self._nodes_dict[node1]:
+        if node1 not in self or node2 not in self:
+            raise ValueError("Node/s not in graph")
+        if (node2 not in self[node1]
+                and node1 not in self[node2]):
             raise ValueError("Nodes are not neighbors")
 
-        # Update the neighbors of node1
-        for neighbor in self._nodes_dict[node2]:
+        # Add the neighbors of node2 to node1
+        for neighbor in self[node2]:
             if neighbor != node1:
-                self._manage_edge((node1, neighbor),
-                                  (neighbor, node1),
-                                  action="add")
-        # Delete node2, its neighbors and it instances as a neighbor
+                # Add or update the edge
+                edge = tuple(sorted([node1, neighbor]))
+                self._edges_dict[edge] = (
+                    self._edges_dict.get(edge, 0)
+                    + self._edges_dict.get((node2, neighbor), 0)
+                )
+                # Update the neighbor of node1
+                self._nodes_dict[node1][neighbor] = (
+                    self._nodes_dict[node1].get(neighbor, 0)
+                    + self._nodes_dict[node2].get(neighbor, 0)
+                )
+
+        # Delete node2, its neighbors and its instances as a neighbor
         self.delete_node(node2)
 
     def delete_loops(self, node: Node) -> None:
         # Delete loops
-        if node in self._nodes_dict[node]:
+        if node in self[node]:
             del self._nodes_dict[node][node]
+        for edge in self.edges_list():
+            if node in edge:
+                del self._edges_dict[edge]
 
     @classmethod
     def copy(cls, graph: "Graph"):
-        """Returns a copy of the graph.
+        """Returns a deep copy of the graph.
         """
         graph_copy = cls(graph._directed, graph._multigraph)
-        graph_copy._nodes_dict = graph._nodes_dict.copy()
-        graph_copy._edges_dict = graph._edges_dict.copy()
+        graph_copy._nodes_dict = copy.deepcopy(graph._nodes_dict)
+        graph_copy._edges_dict = copy.deepcopy(graph._edges_dict)
         return graph_copy
 
     @classmethod
