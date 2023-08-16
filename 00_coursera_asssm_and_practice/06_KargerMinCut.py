@@ -31,9 +31,9 @@ def karger_min_cuts(contraction_graph: Graph, seed_value) -> int:
         edge = contraction_graph.random_edge(seed_value=seed_value)
         contraction_graph.contract_nodes(*edge)
         contraction_graph.delete_self_loops(edge[0])
-    print(f"Graph size: {contraction_graph.size}")
-    print(f"Graph nodes: {contraction_graph.nodes}")
-    print(f"Graph edges: {contraction_graph.edges}")
+    # print(f"Graph size: {contraction_graph.size}")
+    # print(f"Graph nodes: {contraction_graph.nodes}")
+    # print(f"Graph edges: {contraction_graph.edges}")
 
     # Get one of the two remaining nodes.
     # graphnodes = list(contraction_graph.nodes)
