@@ -35,6 +35,7 @@ or numbers.
 """
 
 from typing import Union, Tuple, Dict
+from random import choice
 
 # Defines the type primitives for the graph class
 Node = Union[str, int]
@@ -175,7 +176,7 @@ class Graph:
     def size(self) -> tuple:
         """Returns the number of edges of the graph.
         """
-        return (self.num_nodes(), self.num_edges())
+        return (self.num_nodes, self.num_edges)
 
     def is_multigraph(self) -> bool:
         """Returns True if the graph is a multigraph.
@@ -210,6 +211,16 @@ class Graph:
         """Returns the list of neighbors of a node.
         """
         return list(self._nodes_dict[node].keys())
+
+    def random_node(self) -> Node:
+        """Returns a random node of the graph.
+        """
+        return choice(self.node_list())
+
+    def random_edge(self) -> Edge:
+        """Returns a random edge of the graph.
+        """
+        return choice(self.edge_list())
 
     def degree(self, node: Node) -> int:
         """Returns the degree of a node.
@@ -253,37 +264,53 @@ class Graph:
     def _manage_edge(self, edge, inverse_edge=None, action="add"):
         if action == "add":
             # Ensure nodes exist in _nodes_dict
-            if edge[0] not in self._nodes_dict:
-                self._nodes_dict[edge[0]] = {}
-            if edge[1] not in self._nodes_dict:
-                self._nodes_dict[edge[1]] = {}
+            for node in edge:
+                if node not in self._nodes_dict:
+                    self._nodes_dict[node] = {}
+
+            # Canonicalize edge for undirected graphs
+            if not self._directed:
+                edge = tuple(sorted(edge))
 
             # Add or update the edge
-            if edge not in self:
-                self._edges_dict[edge] = 1
-                self._nodes_dict[edge[0]][edge[1]] = 1
+            if self._multigraph or edge not in self._edges_dict:
+                self._edges_dict[edge] = self._edges_dict.get(edge, 0) + 1
+                self._nodes_dict[edge[0]][edge[1]] = (
+                    self._nodes_dict[edge[0]].get(edge[1], 0) + 1
+                )
+
+                # If the graph is undirected, update the inverse edge as well
                 if not self._directed:
-                    self._nodes_dict[edge[1]][edge[0]] = 1
-            else:
-                if self._multigraph:
-                    if self._directed:
-                        edge = self._which_edge(edge)
-                    else:
-                        self._nodes_dict[edge[1]][edge[0]] += 1
-                    self._edges_dict[edge] = self._edges_dict.get(edge, 0) + 1
-                    self._nodes_dict[edge[0]][edge[1]] = (
-                        self._nodes_dict[edge[0]]
-                        .get(edge[1], 0) + 1
+                    self._nodes_dict[edge[1]][edge[0]] = (
+                        self._nodes_dict[edge[1]].get(edge[0], 0) + 1
                     )
 
-                else:
-                    raise ValueError("Edge already in graph")
+        elif action == "remove":
+            # Ensure the edge exists
+            if edge in self._edges_dict:
+                self._edges_dict[edge] -= 1
+                self._nodes_dict[edge[0]][edge[1]] -= 1
+
+                # If the graph is undirected, update the inverse edge as well
+                if not self._directed:
+                    self._nodes_dict[edge[1]][edge[0]] -= 1
+
+                # Clean up if necessary
+                if self._edges_dict[edge] == 0:
+                    del self._edges_dict[edge]
+                if self._nodes_dict[edge[0]][edge[1]] == 0:
+                    del self._nodes_dict[edge[0]][edge[1]]
+                if (not self._directed
+                        and self._nodes_dict[edge[1]][edge[0]] == 0):
+                    del self._nodes_dict[edge[1]][edge[0]]
+
+        else:
+            raise ValueError(f"Unknown action '{action}' in _manage_edge")
 
     def _which_edge(self, edge):
         if edge in self._edges_dict:
             return edge
-        elif (not self._directed
-              and self._is_inverse_edge(edge) in self._edges_dict):
+        elif self._is_inverse_edge(edge) in self._edges_dict:
             return self._is_inverse_edge(edge)
         else:
             raise ValueError("Edge not in graph")
@@ -298,6 +325,33 @@ class Graph:
             inverse_edge = self._invert_edge(edge)
             if inverse_edge in self._edges_dict:
                 del self._edges_dict[inverse_edge]
+
+    def contract_nodes(self, node1: Node, node2: Node) -> None:
+        """Contracts two nodes of the graph into a supernode preserving
+        the name of node1 and deleting node2. The nodes must be neighbors.
+        Preserves the multigraph property of the graph and deletes loops,
+        and new loops that may be created.
+        """
+        # Ensure nodes exist in the graph
+        if node1 not in self._nodes_dict or node2 not in self._nodes_dict:
+            raise ValueError("Node not in graph")
+        if node2 not in self._nodes_dict[node1]:
+            raise ValueError("Nodes are not neighbors")
+
+        # Update the neighbors of node1
+        for neighbor in self._nodes_dict[node2]:
+            if neighbor != node1:
+                self._manage_edge((node1, neighbor),
+                                  (neighbor, node1),
+                                  action="add")
+        # Delete node2, its neighbors and it instances as a neighbor
+        self.delete_node(node2)
+
+    def delete_loops(self, node: Node) -> None:
+
+        # Delete loops
+        if node in self._nodes_dict[node]:
+            del self._nodes_dict[node][node]
 
     @classmethod
     def from_file(cls, file_name: str = None,
