@@ -183,7 +183,7 @@ class Graph:
         """
         return self._type == "multigraph"
 
-    def make_multigraph(self) -> None:
+    def turn_into_multigraph(self) -> None:
         """Converts the graph into a multigraph.
         """
         self._multigraph = True
@@ -202,12 +202,12 @@ class Graph:
             raise ValueError("Node not in graph")
         return (node1, node2) in self._edges_dict
 
-    def node_list(self) -> list:
+    def nodes_list(self) -> list:
         """Returns the list of nodes of the graph.
         """
         return list(self._nodes_dict.keys())
 
-    def edge_list(self) -> list:
+    def edges_list(self) -> list:
         """Returns the list of edges of the graph.
         """
         return list(self._edges_dict.keys())
@@ -221,13 +221,13 @@ class Graph:
         """Returns a random node of the graph.
         """
         seed(seed_value)
-        return choice(self.node_list())
+        return choice(self.nodes_list())
 
     def random_edge(self, seed_value=9912) -> Edge:
         """Returns a random edge of the graph.
         """
         seed(seed_value)
-        return choice(self.edge_list())
+        return choice(self.edges_list())
 
     def degree(self, node: Node) -> int:
         """Returns the degree of a node.
@@ -251,8 +251,8 @@ class Graph:
         for neighbor in self._nodes_dict:
             if node in self._nodes_dict[neighbor]:
                 del self._nodes_dict[neighbor][node]
-        for edge in self._edges_dict:
-            if node in edge:
+        for edge in self.edges_list():
+            if node in edge and edge in self:
                 del self._edges_dict[edge]
 
     def add_edge(self, node1: Node, node2: Node) -> None:
@@ -358,6 +358,15 @@ class Graph:
         # Delete loops
         if node in self._nodes_dict[node]:
             del self._nodes_dict[node][node]
+
+    @classmethod
+    def copy(cls, graph: "Graph"):
+        """Returns a copy of the graph.
+        """
+        graph_copy = cls(graph._directed, graph._multigraph)
+        graph_copy._nodes_dict = graph._nodes_dict.copy()
+        graph_copy._edges_dict = graph._edges_dict.copy()
+        return graph_copy
 
     @classmethod
     def from_file(cls, file_name: str = None,
