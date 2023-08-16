@@ -65,9 +65,8 @@ if __name__ == "__main__":
                             node_type=int,
                             directed=False,
                             multigraph=False)
+    print(graph.size)
+
     # print(repeat_karger_min_cuts(graph, 306000))
     # print(repeat_karger_min_cuts(graph, 1500))
-    print(repeat_karger_min_cuts(graph, 60))
-    # edge = (109, 154)
-    # graph.turn_into_multigraph()
-    # graph.contract_nodes(*edge)
+    print(repeat_karger_min_cuts(graph, 200))
