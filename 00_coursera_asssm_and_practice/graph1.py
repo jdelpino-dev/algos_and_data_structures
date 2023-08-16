@@ -170,7 +170,7 @@ class Graph:
     def is_multigraph(self) -> bool:
         """Returns True if the graph is a multigraph.
         """
-        return self._type == "multigraph"
+        return self._multigraph
 
     def turn_into_multigraph(self) -> None:
         """Converts the graph into a multigraph.
@@ -250,7 +250,9 @@ class Graph:
 
         # Deletes node from neighbors
         for neighbor in self._nodes_dict[node]:
-            del self._nodes_dict[neighbor][node]
+            if (neighbor in self._nodes_dict
+                    and node in self._nodes_dict[neighbor]):
+                del self._nodes_dict[neighbor][node]
 
         # Deletes node
         del self._nodes_dict[node]
@@ -269,13 +271,12 @@ class Graph:
             edge = tuple(sorted([node1, node2]))
 
         # Update the graph
-        if self._multigraph or edge not in self._edges_dict:
+        if self._multigraph or edge not in self:
             # Add or update the edge
             self._edges_dict[edge] = self._edges_dict.get(edge, 0) + 1
             self._nodes_dict[edge[0]][edge[1]] = (
                 self._nodes_dict[edge[0]].get(edge[1], 0) + 1
             )
-
             # Update the neighbors of the nodes
             if not self._directed:
                 self._nodes_dict[edge[1]][edge[0]] = (
@@ -310,7 +311,7 @@ class Graph:
             if not self._directed and inverse_edge in self._edges_dict:
                 self._nodes_dict[edge[1]][edge[0]] -= 1
 
-    def delte_all_parallel_edges(self, edge: Edge) -> None:
+    def delete_all_parallel_edges(self, edge: Edge) -> None:
         """Deletes all parallel edges from the graph.
         """
         if edge not in self._edges_dict:
@@ -336,30 +337,60 @@ class Graph:
                 and node1 not in self[node2]):
             raise ValueError("Nodes are not neighbors")
 
-        # Add the neighbors of node2 to node1
+        # If the nodes are the same only gets rid of self loops and return
+        if node1 == node2:
+            self.delete_self_loops(node1)
+            return
+
+        # Unify the nodes and update the edges dictionary
         for neighbor in self[node2]:
             if neighbor != node1:
+                # Creates the new edge
+                if self._directed:
+                    edge = (node1, neighbor)
+                else:
+                    # Canonicalize edge for undirected graphs
+                    edge = tuple(sorted([node1, neighbor]))
                 # Add or update the edge
-                edge = tuple(sorted([node1, neighbor]))
                 self._edges_dict[edge] = (
-                    self._edges_dict.get(edge, 0)
+                    self._edges_dict.get(edge, 0) + 1
                     + self._edges_dict.get((node2, neighbor), 0)
                 )
-                # Update the neighbor of node1
+                # Update the neighbors of node1
                 self._nodes_dict[node1][neighbor] = (
-                    self._nodes_dict[node1].get(neighbor, 0)
+                    self._nodes_dict[node1].get(neighbor, 0) + 1
                     + self._nodes_dict[node2].get(neighbor, 0)
                 )
+                # Update the neighbor if the graph is undirected
+                if (not self._directed and neighbor != node1
+                        and neighbor in self._nodes_dict):
+                    self._nodes_dict[neighbor][node1] = (
+                        self._nodes_dict[neighbor].get(node1, 0) + 1
+                        + self._nodes_dict[neighbor].get(node2, 0)
+                    )
+
+        # Assemble the old edge
+        if self._directed:
+            old_edge = (node1, node2)
+        else:
+            # Canonicalize edge for undirected graphs
+            old_edge = tuple(sorted([node1, node2]))
+
+        # Deletes the old edge
+        self.delete_all_parallel_edges(old_edge)
 
         # Delete node2, its neighbors and its instances as a neighbor
         self.delete_node(node2)
 
-    def delete_loops(self, node: Node) -> None:
-        # Delete loops
+    def delete_self_loops(self, node: Node) -> None:
+        """Deletes all the self loops of a node.
+        """
+        if node not in self:
+            raise ValueError("Node not in graph")
         if node in self[node]:
             del self._nodes_dict[node][node]
         for edge in self.edges_list():
-            if node in edge:
+            if node in edge and edge[0] == edge[1]:
                 del self._edges_dict[edge]
 
     @classmethod

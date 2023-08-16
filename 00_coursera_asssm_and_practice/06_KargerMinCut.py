@@ -9,7 +9,7 @@ def repeat_karger_min_cuts(original_graph: Graph, times: int) -> int:
     min_cuts = float("inf")
 
     for _ in range(times):
-        seed = randint(1, 3_0043_110)
+        seed = randint(99, 6_0043_110)
         contraction_graph = Graph.copy(original_graph)
         contraction_graph.turn_into_multigraph()
         cuts = karger_min_cuts(contraction_graph, seed)
@@ -17,7 +17,7 @@ def repeat_karger_min_cuts(original_graph: Graph, times: int) -> int:
             min_cuts = cuts
         # print(f"Current min cuts: {min_cuts}")
 
-    return min_cuts
+    return min_cuts, contraction_graph.size
 
 
 def karger_min_cuts(contraction_graph: Graph, seed_value) -> int:
@@ -30,7 +30,7 @@ def karger_min_cuts(contraction_graph: Graph, seed_value) -> int:
            and len(contraction_graph.edges) > 0):
         edge = contraction_graph.random_edge(seed_value=seed_value)
         contraction_graph.contract_nodes(*edge)
-        contraction_graph.delete_loops(edge[0])
+        contraction_graph.delete_self_loops(edge[0])
 
     # Get one of the two remaining nodes.
     graphnodes = list(contraction_graph.nodes)
@@ -60,5 +60,9 @@ if __name__ == "__main__":
                             node_type=int,
                             directed=False,
                             multigraph=False)
-    # print(repeat_karger_min_cuts(graph, 306000))
-    print(repeat_karger_min_cuts(graph, 50))
+    print(repeat_karger_min_cuts(graph, 306000))
+    # print(repeat_karger_min_cuts(graph, 1500))
+    # print(repeat_karger_min_cuts(graph, 60))
+    # edge = (109, 154)
+    # graph.turn_into_multigraph()
+    # graph.contract_nodes(*edge)
