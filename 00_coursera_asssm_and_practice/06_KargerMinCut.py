@@ -15,7 +15,9 @@ def repeat_karger_min_cuts(original_graph: Graph, times: int) -> int:
         cuts = karger_min_cuts(contraction_graph, seed)
         if cuts < min_cuts:
             min_cuts = cuts
-        # print(f"Current min cuts: {min_cuts}")
+            print(f"Current min cuts: {min_cuts}")
+            print(f"Current min graphs nodes: {contraction_graph.nodes}")
+            print(f"Final min graphs edges: {contraction_graph.edges}")
 
     return min_cuts, contraction_graph.size
 
