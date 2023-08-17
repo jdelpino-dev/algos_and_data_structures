@@ -243,16 +243,18 @@ class Graph:
         if node not in self._nodes_dict:
             return
 
-        # Deletes edges with node
-        for edge in self.edges_list():
-            if node in edge:
-                del self._edges_dict[edge]
-
-        # Deletes node from neighbors
+        # Deletes the node from neighbors and edges with the node
         for neighbor in self._nodes_dict[node]:
             if (neighbor in self._nodes_dict
                     and node in self._nodes_dict[neighbor]):
                 del self._nodes_dict[neighbor][node]
+            edge_to_delete = (node, neighbor)
+            if edge_to_delete in self._edges_dict:
+                del self._edges_dict[edge_to_delete]
+            if not self._directed:
+                edge_to_delete = (neighbor, node)
+                if edge_to_delete in self._edges_dict:
+                    del self._edges_dict[edge_to_delete]
 
         # Deletes node
         del self._nodes_dict[node]
