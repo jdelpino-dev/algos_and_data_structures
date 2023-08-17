@@ -1,5 +1,7 @@
 from graph1 import Graph
 from random import randint
+import cProfile
+from memory_profiler import profile
 
 
 def repeat_karger_min_cuts(original_graph: Graph, times: int) -> int:
@@ -46,8 +48,8 @@ def karger_min_cuts(contraction_graph: Graph, seed_value) -> int:
     return contraction_graph[supernode]
 
 
-# Main block
-if __name__ == "__main__":
+@profile
+def main():
     # filename = (
     #     "./20_algos_and_data_structures/00_coursera_asssm_and_practice"
     #     "/05_data/graph_1.txt"
@@ -72,3 +74,8 @@ if __name__ == "__main__":
     # print(repeat_karger_min_cuts(graph, 306000))
     # print(repeat_karger_min_cuts(graph, 1500))
     print(repeat_karger_min_cuts(graph, 200))
+
+
+# Main block
+if __name__ == "__main__":
+    cProfile.run('main()')
