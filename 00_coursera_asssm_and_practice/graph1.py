@@ -406,9 +406,9 @@ class Graph:
             raise ValueError("Node not in graph")
         if node in self[node]:
             del self._nodes_dict[node][node]
-        for edge in self.edges_list():
-            if node in edge and edge[0] == edge[1]:
-                del self._edges_dict[edge]
+        self_edge = (node, node)
+        if self_edge in self._edges_dict:
+            del self._edges_dict[self_edge]
 
     @classmethod
     def copy(cls, graph: "Graph"):
