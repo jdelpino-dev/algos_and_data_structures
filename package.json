@@ -1,6 +1,16 @@
 {
+  "name": "dsa-in-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "José Delpino",
+  "license": "ISC",
   "devDependencies": {
     "eslint": "^8.56.0",
-    "eslint-config-google": "^0.14.0"
+    "eslint-config-google": "^0.14.0",
+    "jest": "^29.7.0"
   }
 }
