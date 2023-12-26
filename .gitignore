@@ -2,6 +2,7 @@
 **/__interactive_sessions__/
 **/__additional_testing_sources__/
 **/.idea/
+**/node_modules/
 launch.json
 .vscode/
 *.code-workspace
