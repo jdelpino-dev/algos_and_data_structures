@@ -57,6 +57,13 @@ class LinkedList {
     let curr = this.head;
     let prev = null;
 
+    if (this.length === 1) {
+      this.head = null;
+      this.tail = null;
+      this.length--;
+      return curr.val;
+    }
+
     // Traverse to the end of the list
     while (curr.next) {
       prev = curr;
@@ -69,12 +76,6 @@ class LinkedList {
 
     // Decrement the length by 1
     this.length--;
-
-    // If the list is empty, set the head and tail to null
-    if (this.length === 0) {
-      this.head = null;
-      this.tail = null;
-    }
 
     // Return the value of the last node
     return curr.val;
@@ -139,7 +140,23 @@ class LinkedList {
    * @param {any} val
    */
   insertAt(idx, val) {
-    if (idx >= this.length) throw new Error('Index out of bounds');
+    // If the index is greater than the length, throw an error
+    if (idx >= this.length + 1) throw new Error('Index out of bounds');
+
+    // If the list is empty, or the index is the same as the length,
+    // push a new node to the end of the list
+    if (this.length === 1 || idx === this.length) {
+      this.push(val);
+      return;
+    }
+
+    // If the index is 0, unshift a new node to the start of the list
+    if (idx === 0) {
+      this.unshift(val);
+      return;
+    }
+
+    // Otherwise, traverse the list to the node before the index
 
     let curr = this.head;
     let counter = 0;
@@ -161,7 +178,17 @@ class LinkedList {
    * @return {any}
    */
   removeAt(idx) {
+    // If the index is greater than the length, throw an error
     if (idx >= this.length) throw new Error('Index out of bounds');
+
+    // If the index is 0, shift a node from the start of the list
+    if (idx === 0) return this.shift();
+
+    // If the index is the same as the length-1 or the list has a length of 1,
+    // pop a node from the end of the list
+    if (idx === this.length - 1) return this.pop();
+
+    // Otherwise, traverse the list to the node before the index
 
     let curr = this.head;
     let counter = 0;
