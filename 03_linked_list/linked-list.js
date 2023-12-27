@@ -18,6 +18,21 @@ class LinkedList {
     for (const val of vals) this.push(val);
   }
 
+  /** getNodeAt(idx): retrieve node at idx.
+   * @param {number} idx
+   * @return {Node}
+   */
+  getNodeAt(idx) {
+    if (idx >= this.length) throw new Error('Index out of bounds');
+
+    let curr = this.head;
+    for (let i = 0; i < idx; i++) {
+      curr = curr.next;
+    }
+
+    return curr;
+  }
+
   /** Add new value to end of list.
    * @param {any} val
    */
@@ -52,33 +67,31 @@ class LinkedList {
    * @return {any}
    */
   pop() {
+    // If the list is empty, throw an error
     if (!this.head) throw new Error('List is empty');
-    // Initialize curr and prev pointers
-    let curr = this.head;
-    let prev = null;
 
+    // If the list has a length of 1, set the head and tail to null
     if (this.length === 1) {
+      const curr = this.head;
       this.head = null;
       this.tail = null;
       this.length--;
       return curr.val;
     }
 
-    // Traverse to the end of the list
-    while (curr.next) {
-      prev = curr;
-      curr = curr.next;
-    }
+    // Otherwise traverse the list to get the last and second to last nodes
+    const secondToLast = this.getNodeAt(this.length - 2);
+    const last = secondToLast.next;
 
     // Set the tail to the node previous to the last node
-    this.tail = prev;
+    this.tail = secondToLast;
     this.tail.next = null;
 
     // Decrement the length by 1
     this.length--;
 
     // Return the value of the last node
-    return curr.val;
+    return last.val;
   }
 
   /** shift(): return & remove first item.
@@ -106,15 +119,7 @@ class LinkedList {
   getAt(idx) {
     if (idx >= this.length) throw new Error('Index out of bounds');
 
-    let curr = this.head;
-    let counter = 0;
-
-    while (counter < idx) {
-      curr = curr.next;
-      counter++;
-    }
-
-    return curr.val;
+    return this.getNodeAt(idx).val;
   }
 
   /** setAt(idx, val): set val at idx to val
@@ -124,15 +129,7 @@ class LinkedList {
   setAt(idx, val) {
     if (idx >= this.length) throw new Error('Index out of bounds');
 
-    let curr = this.head;
-    let counter = 0;
-
-    while (counter < idx) {
-      curr = curr.next;
-      counter++;
-    }
-
-    curr.val = val;
+    this.getNodeAt(idx).val = val;
   }
 
   /** insertAt(idx, val): add node w/val before idx.
@@ -157,14 +154,7 @@ class LinkedList {
     }
 
     // Otherwise, traverse the list to the node before the index
-
-    let curr = this.head;
-    let counter = 0;
-
-    while (counter < idx - 1) {
-      curr = curr.next;
-      counter++;
-    }
+    let curr = this.getNodeAt(idx - 1);
 
     const newNode = new Node(val);
     newNode.next = curr.next;
@@ -189,14 +179,7 @@ class LinkedList {
     if (idx === this.length - 1) return this.pop();
 
     // Otherwise, traverse the list to the node before the index
-
-    let curr = this.head;
-    let counter = 0;
-
-    while (counter < idx - 1) {
-      curr = curr.next;
-      counter++;
-    }
+    let curr = this.getNodeAt(idx - 1);
 
     val = curr.next.val;
     curr.next = curr.next.next;
